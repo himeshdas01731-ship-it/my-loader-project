@@ -116,7 +116,7 @@
 }
 .my-custom-face-container {
   display: flex;
-  flex-direction: column; /* এলিমেন্টগুলো উপর-নিচে সারিবদ্ধ রাখার জন্য */
+  flex-direction: column; /*
   justify-content: center;
   align-items: center;
   height: 500px;
