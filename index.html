@@ -1,49 +1,192 @@
-<main class="my-custom-face-container">
-  <svg class="face" viewBox="0 0 320 380">
-    <g
-      fill="none"
-      stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="25"
-    >
-      <g class="face__eyes" transform="translate(0,112.5)">
-        <g transform="translate(15,0)">
-          <polyline class="face__eye-lid" points="37,0 0,120 75,120"></polyline>
-          <polyline
-            class="face__pupil"
-            points="55,120 55,155"
-            stroke-dasharray="35 35"
-          ></polyline>
-        </g>
-        <g transform="translate(230,0)">
-          <polyline class="face__eye-lid" points="37,0 0,120 75,120"></polyline>
-          <polyline
-            class="face__pupil"
-            points="55,120 55,155"
-            stroke-dasharray="35 35"
-          ></polyline>
-        </g>
-      </g>
-      <rect
-        class="face__nose"
-        x="132.5"
-        y="112.5"
-        width="55"
-        height="155"
-        rx="4"
-        ry="4"
-      ></rect>
-      <g transform="translate(65,334)" stroke-dasharray="102 102">
-        <path class="face__mouth-left" d="M 0 30 C 0 30 40 0 95 0"></path>
-        <path class="face__mouth-right" d="M 95 0 C 150 0 190 30 190 30"></path>
-      </g>
-    </g>
-  </svg>
-</main>
-<div class="my-custom-face-container">
-  <div class="face">
-    <!-- SVG code for 404 animation -->
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe Game</title>
+  
+  <!-- CSS কোড (ডিজাইনের জন্য) -->
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .game-container {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      width: 340px;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    #status {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #555;
+      font-weight: 600;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .cell {
+      width: 80px;
+      height: 80px;
+      background-color: #f0f2f5;
+      border: none;
+      border-radius: 10px;
+      font-size: 36px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .cell:hover {
+      background-color: #e2e8f0;
+    }
+
+    .cell:active {
+      transform: scale(0.95);
+    }
+
+    .cell.x {
+      color: #ff4757;
+    }
+
+    .cell.o {
+      color: #2ed573;
+    }
+
+    #restartBtn {
+      background-color: #667eea;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    #restartBtn:hover {
+      background-color: #5a67d8;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HTML কাঠামো (গেমের লেআউট) -->
+  <div class="game-container">
+    <h1>Tic Tac Toe</h1>
+    <div id="status">প্লেয়ার <span id="turn">X</span>-এর পালা</div>
+    
+    <div class="board" id="board">
+      <button class="cell" data-index="0"></button>
+      <button class="cell" data-index="1"></button>
+      <button class="cell" data-index="2"></button>
+      <button class="cell" data-index="3"></button>
+      <button class="cell" data-index="4"></button>
+      <button class="cell" data-index="5"></button>
+      <button class="cell" data-index="6"></button>
+      <button class="cell" data-index="7"></button>
+      <button class="cell" data-index="8"></button>
+    </div>
+
+    <button id="restartBtn">নতুন খেলা শুরু করুন</button>
   </div>
-  <p class="face-text">Where are you?</p>
-</div>
+
+  <!-- JavaScript কোড (গেম চালু রাখার লজিক) -->
+  <script>
+    const cells = document.querySelectorAll('.cell');
+    const statusText = document.getElementById('status');
+    const turnText = document.getElementById('turn');
+    const restartBtn = document.getElementById('restartBtn');
+
+    let board = ["", "", "", "", "", "", "", "", ""];
+    let currentPlayer = "X";
+    let isGameActive = true;
+
+    const winningConditions = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6]
+    ];
+
+    function handleCellClick(e) {
+      const cell = e.target;
+      const index = cell.getAttribute('data-index');
+
+      if (board[index] !== "" || !isGameActive) return;
+
+      board[index] = currentPlayer;
+      cell.innerText = currentPlayer;
+      cell.classList.add(currentPlayer.toLowerCase());
+
+      checkWinner();
+    }
+
+    function checkWinner() {
+      let roundWon = false;
+
+      for (let condition of winningConditions) {
+        const [a, b, c] = condition;
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+          roundWon = true;
+          break;
+        }
+      }
+
+      if (roundWon) {
+        statusText.innerText = `🎉 প্লেয়ার ${currentPlayer} জিতেছে!`;
+        isGameActive = false;
+        return;
+      }
+
+      if (!board.includes("")) {
+        statusText.innerText = "😲 খেলাটি ড্র হয়েছে!";
+        isGameActive = false;
+        return;
+      }
+
+      currentPlayer = currentPlayer === "X" ? "O" : "X";
+      turnText.innerText = currentPlayer;
+    }
+
+    function restartGame() {
+      board = ["", "", "", "", "", "", "", "", ""];
+      currentPlayer = "X";
+      isGameActive = true;
+      statusText.innerHTML = `প্লেয়ার <span id="turn">X</span>-এর পালা`;
+      
+      cells.forEach(cell => {
+        cell.innerText = "";
+        cell.classList.remove('x', 'o');
+      });
+    }
+
+    cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+    restartBtn.addEventListener('click', restartGame);
+  </script>
+</body>
+</html>
